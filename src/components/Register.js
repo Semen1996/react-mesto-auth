@@ -1,9 +1,8 @@
 import React from 'react';
-import { withRouter } from 'react-router-dom'; 
-import {register} from '../utils/auth.js';
+import { withRouter, Link } from 'react-router-dom'; 
 
 
-function Register(props) {
+function Register({onRegister}) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
 
@@ -17,19 +16,9 @@ function Register(props) {
   }
 
   function handleSubmit(e) {
-    e.preventDefault();
 
-    register(email,password)
-      .then((res) => {
-        if(res) {
-          props.registrStatus();
-          props.registerOpen();
-          props.history.push('/sign-in');
-        }
-      })
-      .catch(() => {
-        props.registerOpen();
-      });
+    e.preventDefault();
+    onRegister(email,password);
   }
   
 
@@ -39,7 +28,7 @@ function Register(props) {
       <input className="sign__field sign__field_type_email" name="email" type="email" value={email} onChange={handleEmail} placeholder="Email" minLength="5" required />
       <input className="sign__field sign__field_type_password" name="password" type="password" value={password} onChange={handlePassword}  placeholder="Пароль" minLength="4" required />
       <button className="sign__submitButton" type="submit">Зарегистрироваться</button>
-      <p className="sign__text">Уже зарегистрированы? Войти</p>
+      <p className="sign__text">Уже зарегистрированы? <Link className="sign__text" to="/sign-in">Войти</Link></p>
     </form>
   );
 }

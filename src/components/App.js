@@ -4,22 +4,19 @@ import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
-
 import ImagePopup from './ImagePopup';
 import EditProfilePopup  from './EditProfilePopup';
 import EditAvatarPopup  from './EditAvatarPopup';
 import AddPlacePopup  from './AddPlacePopup';
 
 import api from '../utils/Api.js';
-
 import {CurrentUserContext} from '../context/CurrentUserContext';
 
 import Login from './Login';
 import Register from './Register';
 import ProtectedRoute from './ProtectedRoute';
 import InfoTooltip from './InfoTooltip';
-import {validationToken} from '../utils/auth.js'
-
+import {register, authorize, validationToken} from '../utils/auth.js'
 
 function App() {
 
@@ -38,11 +35,6 @@ function App() {
 
   const history = useHistory();
 
-
-  function handleLogin() {
-    setLoggedIn(true);
-  }
-
   React.useEffect( () => {
     Promise.all( [api.getUserInfo(), api.getInitialCards()] )
       .then(([userData, initialCards]) => {
@@ -56,7 +48,7 @@ function App() {
 
   React.useEffect(() => {
     tokenCheck();
-  });
+  },[]);
 
 
   // Попап редактирования профиля
@@ -169,30 +161,53 @@ function App() {
       })
   }
 
-
-  function handleRegistrClick() {
-    setIsInfoTooltipOpen(true);
-  }
-
-  function registrStatus() {
-    setMessage(true);
-  }
-
-  function handleEmail(e) {
-    setUserEmail(e.target.value);
-  }
-
   function tokenCheck () {
     const jwt = localStorage.getItem('jwt');
     if (jwt){
       validationToken(jwt)
       .then((res) => {
         if (res){
-          handleLogin()
+          setLoggedIn(true);
           history.push("/");
         }
+      })
+      .catch((err) => {
+        console.log(err);
       });
     }
+  }
+
+  function onRegister(email,password) {
+    register(email,password)
+      .then((res) => {
+        console.log(res)
+        if(res) {
+          setMessage(true);
+          history.push('/sign-in');
+        }
+      })
+      .catch(() => {
+        setMessage(false);
+      })
+      .finally(() => {
+        setIsInfoTooltipOpen(true);
+      });
+  }
+
+  function onLogin(email,password) {
+    authorize(password, email)
+    .then((data) => {
+      if(data.token) {
+        setLoggedIn(true);
+        setUserEmail(email);
+        history.push('/');
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      setMessage(false);
+      setIsInfoTooltipOpen(true);
+    });
   }
 
   return (
@@ -213,10 +228,10 @@ function App() {
             loggedIn={loggedIn}
           />
           <Route path="/sign-up">
-            <Register registerOpen={handleRegistrClick} registrStatus={registrStatus} />
+            <Register onRegister={onRegister} />
           </Route>
           <Route path="/sign-in">
-            <Login handleLogin={handleLogin} userEmail={userEmail} handleEmail={handleEmail} />
+            <Login onLogin={onLogin} />
           </Route>
           <Route exact path= "/">
             {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
