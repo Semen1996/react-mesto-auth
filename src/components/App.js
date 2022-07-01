@@ -36,20 +36,21 @@ function App() {
   const history = useHistory();
 
   React.useEffect( () => {
-    Promise.all( [api.getUserInfo(), api.getInitialCards()] )
-      .then(([userData, initialCards]) => {
-        setCurrentUser(userData);
-        setCards(initialCards);
-      })
-      .catch((err) => {
-        console.log(`Ошибка: ${err}`);
-      });
-  },[]);
+    if (loggedIn) {
+      Promise.all( [api.getUserInfo(), api.getInitialCards()] )
+        .then(([userData, initialCards]) => {
+          setCurrentUser(userData);
+          setCards(initialCards);
+        })
+        .catch((err) => {
+          console.log(`Ошибка: ${err}`);
+        });
+      }
+  },[loggedIn]);
 
   React.useEffect(() => {
     tokenCheck();
   },[]);
-
 
   // Попап редактирования профиля
   function handleEditProfileClick() {
@@ -73,7 +74,6 @@ function App() {
       })
   }
 
-
   // Попап редактирования аватара
   function handleEditAvatarClick() {
     setIsEditAvatarPopupOpen(true);
@@ -96,7 +96,6 @@ function App() {
       })
   }
 
-  
   // Попап добавления карточки
   function handleAddPlaceClick() {
     setIsAddPlacePopupOpen(true);
@@ -167,6 +166,7 @@ function App() {
       validationToken(jwt)
       .then((res) => {
         if (res){
+          setUserEmail(res.data.email);
           setLoggedIn(true);
           history.push("/");
         }
@@ -201,6 +201,9 @@ function App() {
         setLoggedIn(true);
         setUserEmail(email);
         history.push('/');
+      } else {
+        setMessage(false);
+        setIsInfoTooltipOpen(true);
       }
     })
     .catch(err => {
