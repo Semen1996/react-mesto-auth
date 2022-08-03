@@ -1,5 +1,5 @@
 # Проект: Mesto на Реакте с авторизацией и регистрацией
-Сайт на GitHub Pages:http://semen1996.github.io/react-mesto-auth
+Сайт на GitHub Pages: http://semen1996.github.io/react-mesto-auth
 
 "Mesto" - это интерактивная страница, где пользователи могут делиться фотографиями.
 
@@ -26,7 +26,7 @@
 Скопируйте проект к себе с помощью команды
 
 ```
-git clone git@github.com:Semen1996/how-to-learn.git
+git@github.com:Semen1996/react-mesto-auth.git
 ```
 
 В директории проекта запустить приложение в режиме разработки:
